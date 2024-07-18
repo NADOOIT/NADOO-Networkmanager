@@ -1,0 +1,1 @@
+DATABASE_URL = "sqlite:///data/db/network_manager.db"
