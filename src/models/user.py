@@ -1,0 +1,40 @@
+class User:
+    def __init__(self,
+                 vorname,
+                 nachname,
+                 firmenname=None,
+                 unternehmensbranche=None,
+                 telefonnummer=None,
+                 email=None,
+                 webseite=None,
+                 chapter=None,
+                 mitgliedsstatus=None,
+                 ):
+        self.first_name = vorname
+        self.last_name = nachname
+        self.firmenname = firmenname
+        self.unternehmensbranche = unternehmensbranche
+        self.telefonnummer = telefonnummer
+        self.email = email
+        self.webseite = webseite
+        self.chapter = chapter
+        self.mitgliedsstatus = mitgliedsstatus
+
+    def to_dict(self):
+        return {
+            "vorname": self.first_name,
+            "nachname": self.last_name,
+            "firmenname": self.firmenname,
+            "unternehmensbranche": self.unternehmensbranche,
+            "telefonnummer": self.telefonnummer,
+            "email": self.email,
+            "webseite": self.webseite,
+            "chapter": self.chapter,
+            "mitgliedsstatus": self.mitgliedsstatus,
+        }
+
+    @staticmethod
+    def from_dict(data):
+        return User(data.get('vorname'), data.get('nachname'), data.get('firmenname'), data.get('unternehmensbranche'),
+                    data.get('telefonnummer'), data.get('email'), data.get('webseite'), data.get('chapter'),
+                    data.get('mitgliedsstatus'))

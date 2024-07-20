@@ -1,25 +1,21 @@
 from pptx import Presentation
-from sqlalchemy.orm import Session
-from data.models import PresentationSlide
 from pptx.dml.color import RGBColor
 from pptx.util import Pt
+import os
 
 
-class SlideTemplate:
-    def __init__(self, db_session: Session, pptx_path: str):
-        self.db_session = db_session
-        self.pptx_path = pptx_path
+class FolienVorlage:
+    def __init__(self, folienvorlage, user_info: dict = None):
+        self.user_info = user_info
+        self.folienvorlage = folienvorlage
+        self.folientitel = folienvorlage['folientitel']
+        self.pptx_src_path = folienvorlage['folien_path']
+        self.pptx_dest_path = folienvorlage['folien_path']
 
-    def fetch_slide_data(self, slide_id: int):
-        return self.db_session.query(PresentationSlide).filter(PresentationSlide.ID == slide_id).first()
-
-    def create_from_template(self, slide_id: int, output_path: str):
+    def create_from_template(self):
         print("Creating presentation...")
-        presentation_data = self.fetch_slide_data(slide_id)
-        if not presentation_data:
-            raise ValueError(f"No data found for slide ID {slide_id}")
 
-        prs = Presentation(self.pptx_path)
+        prs = Presentation(self.pptx_src_path)
 
         # Assuming the slide to update is the first slide in the presentation
         slide = prs.slides[0]
@@ -32,7 +28,7 @@ class SlideTemplate:
                 # Remove the old picture
                 slide.shapes._spTree.remove(shape._element)
                 # Add the new picture
-                slide.shapes.add_picture("resources/images/Picture1.png", x, y, cx, cy)
+                slide.shapes.add_picture("resources/images/user.png", x, y, cx, cy)
                 print("Picture shape updated successfully")
 
             elif shape.has_text_frame:
@@ -43,7 +39,7 @@ class SlideTemplate:
                     text_frame.clear()  # not necessary for newly-created shape
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Folientitel
+                    run.text = self.folientitel
                     font = run.font
                     font.name = 'Arial Black (Headings)'
                     font.size = Pt(27)
@@ -53,7 +49,7 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Firmenname
+                    run.text = self.user_info['firmenname']
                     font = run.font
                     font.name = 'Arial Black (Headings)'
                     font.size = Pt(22)
@@ -63,7 +59,7 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Unternehmensbranche
+                    run.text = self.user_info['unternehmensbranche']
                     font = run.font
                     font.color.rgb = RGBColor.from_string("FF0000")
                     font.name = 'Arial Black (Headings)'
@@ -74,7 +70,8 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Kontaktdaten
+                    run.text = \
+                        f"Telefon: {self.user_info['telefonnummer']}\n{self.user_info['email']}\n{self.user_info['webseite']}"
                     font = run.font
                     font.name = 'Arial Black (Headings)'
                     font.size = Pt(13)
@@ -84,7 +81,7 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Vortragszeit
+                    run.text = self.folienvorlage['vortragszeit']
                     font = run.font
                     font.color.rgb = RGBColor.from_string("FFFFFF")
                     font.name = 'Arial Black (Headings)'
@@ -95,7 +92,7 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Vorname
+                    run.text = self.user_info['vorname']
                     font = run.font
                     font.color.rgb = RGBColor.from_string("FFFFFF")
                     font.name = 'Arial Black (Headings)'
@@ -106,7 +103,7 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Nachname
+                    run.text = self.user_info['nachname']
                     font = run.font
                     font.color.rgb = RGBColor.from_string("FFFFFF")
                     font.name = 'Arial Black (Headings)'
@@ -117,12 +114,20 @@ class SlideTemplate:
                     text_frame.clear()
                     p = text_frame.paragraphs[0]
                     run = p.add_run()
-                    run.text = presentation_data.Naechster_vortrag
+                    run.text = "Max Mustermann"
                     font = run.font
                     font.name = 'Arial'
                     font.size = Pt(24)
                     font.bold = True
                     font.italic = None
 
-            prs.save(output_path)
-            print("Text frame updated successfully")
+        # Speichere die Änderungen in einer neuen Datei.
+        directory, filename = os.path.split(self.pptx_dest_path)
+        name, ext = os.path.splitext(filename)
+        new_filename = f"{self.user_info['vorname']}_{self.folienvorlage['folientitel']}{ext}"
+        new_directory = os.path.join(directory, "folien")
+        if not os.path.exists(new_directory):
+            os.makedirs(new_directory)
+        destination_path = os.path.join(new_directory, new_filename)
+        prs.save(destination_path)
+        print("Text frame updated successfully")
