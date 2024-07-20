@@ -1,0 +1,35 @@
+{
+    "users": [
+        {
+            "vorname": "Hani",
+            "nachname": "Bashir",
+            "firmenname": "Hani",
+            "unternehmensbranche": "online handle",
+            "telefonnummer": "0255896333",
+            "email": "h@b.com",
+            "webseite": "hani.com",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "inaktiv",
+            "id": 1
+        },
+        {
+            "vorname": "dsfsd",
+            "nachname": "sdfsd",
+            "firmenname": "sdfsd",
+            "unternehmensbranche": "sdfsd",
+            "telefonnummer": "sdfsd",
+            "email": "dfg@fd.v",
+            "webseite": "sdfs",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "aktiv",
+            "id": 2
+        }
+    ],
+    "folienvorlagen": [
+        {
+            "folientitel": "Kurzpräsentation",
+            "folien_path": "resources/vorlage/Kurzpraesetation-Vorlage.pptx",
+            "vortragszeit": "20 Sek"
+        }
+    ]
+}

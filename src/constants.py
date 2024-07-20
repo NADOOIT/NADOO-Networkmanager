@@ -1,1 +1,6 @@
-DATABASE_URL = "sqlite:///data/db/network_manager.db"
+from enum import Enum
+
+
+class Mitgliedsstatus(Enum):
+    AKTIV = "aktiv"
+    INAKTIV = "inaktiv"
