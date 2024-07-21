@@ -1,0 +1,12 @@
+{
+  "folienvorlagen": [
+    {
+      "folientitel": "Kurzpräsentation",
+      "folien_path": "resources/vorlage/Kurzpraesentation-Vorlage.pptx"
+    },
+    {
+      "folientitel": "Test",
+      "folien_path": "resources/vorlage/Kurzpraesentation-Vorlage.pptx"
+    }
+  ]
+}

@@ -11,7 +11,8 @@ class UserData(BaseModel):
     webseite: str = Field(None, min_length=1, max_length=100)
     chapter: str = Field(None, min_length=1, max_length=100)
     mitgliedsstatus: str = Field(None, min_length=1, max_length=100)
+    foto: str = Field(None, min_length=1, max_length=200)
 
 
-def validate_user_data(data: dict) -> UserData:
+def benutzerdaten_validieren(data: dict) -> UserData:
     return UserData(**data)
