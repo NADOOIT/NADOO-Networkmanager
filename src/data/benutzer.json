@@ -1,0 +1,30 @@
+{
+    "benutzer": [
+        {
+            "vorname": "df",
+            "nachname": "fdfvbd",
+            "firmenname": "cvbvc",
+            "unternehmensbranche": "bvcvb",
+            "telefonnummer": "vcbcvb",
+            "email": "bvcbv@gfds.v",
+            "webseite": "dfgdf",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "aktiv",
+            "foto": "resources/images/benutzer/df_fdfvbd_foto.png",
+            "id": 1
+        },
+        {
+            "vorname": "cjtjt",
+            "nachname": "ccjjtj",
+            "firmenname": "casfdfdsfztjutzj",
+            "unternehmensbranche": "tjtzjt",
+            "telefonnummer": "tzjtzjt",
+            "email": "gfb@fgg.b",
+            "webseite": "fgfg",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "aktiv",
+            "foto": "resources/images/benutzer/cjtjt_ccjjtj_foto.png",
+            "id": 2
+        }
+    ]
+}
