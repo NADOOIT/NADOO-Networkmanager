@@ -13,15 +13,27 @@
             "id": 1
         },
         {
-            "vorname": "dsfsd",
-            "nachname": "sdfsd",
-            "firmenname": "sdfsd",
-            "unternehmensbranche": "sdfsd",
-            "telefonnummer": "sdfsd",
-            "email": "dfg@fd.v",
-            "webseite": "sdfs",
+            "vorname": "Christoph",
+            "nachname": "Backhaus",
+            "firmenname": "Christoph Backhaus IT",
+            "unternehmensbranche": "App Entwickler",
+            "telefonnummer": "0405698",
+            "email": "chris@nadooit.de",
+            "webseite": "nadooit.de",
             "chapter": "Moin Oldenburg (online)",
             "mitgliedsstatus": "aktiv",
+            "id": 1
+        },
+        {
+            "vorname": "Björn",
+            "nachname": "Groenewold",
+            "firmenname": "Groenewold - IT Solutions GmbH",
+            "unternehmensbranche": "App Entwickler",
+            "telefonnummer": "04555",
+            "email": "egal@egal.com",
+            "webseite": "groenewold-it.solutions",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "inaktiv",
             "id": 2
         }
     ],
