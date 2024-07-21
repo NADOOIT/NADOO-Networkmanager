@@ -25,6 +25,7 @@ class NetworkManagerApp(toga.App):
         self.mitgliedsstatus_input = None
 
         # Right container reference
+        self.left_container = None
         self.right_container = None
 
         # template info
@@ -32,6 +33,16 @@ class NetworkManagerApp(toga.App):
         self.folien_path = None
         self.vortrag_zeit_input = None
         self.naechster_vortrag_input = None
+
+        # buttons
+        self.neues_mitglied_button = None
+        self.action_button = None
+        self.delete_user_button = None
+        self.vorlage_erzeugen_button = None
+
+        # boxes
+        self.user_action_button_box = None
+        self.vortrag_action_button_box = None
 
     def startup(self):
         self.main_window = toga.MainWindow(title=self.formal_name, size=(1050, 700), position=(250, 20))
@@ -75,16 +86,17 @@ class NetworkManagerApp(toga.App):
         mitglied_vor_nachname = [(i + 1, f'{value["vorname"]} {value["nachname"]}') for i, value in
                                  enumerate(get_users())]
 
-        left_container = toga.Table(headings=["Nr.", "Mitglieder"], data=mitglied_vor_nachname,
-                                    on_select=self.on_mitglied_select, style=Pack(flex=1))
+        self.left_container = toga.Table(headings=["Nr.", "Mitglieder"], data=mitglied_vor_nachname,
+                                         on_select=self.on_mitglied_select, style=Pack(flex=1))
 
         self.right_container = toga.ScrollContainer(horizontal=False)
         self.right_container.content = toga.Box(style=Pack(direction=COLUMN))
 
-        neues_mitglied_button = toga.Button('Neues Mitglied hinzufügen', on_press=self.mitglied_hinzufuegen,
-                                            style=Pack(flex=0, padding=10))
+        self.neues_mitglied_button = toga.Button('Neues Mitglied hinzufügen', on_press=self.mitglied_hinzufuegen,
+                                                 style=Pack(flex=0, padding=10))
 
-        left_box = toga.Box(children=[neues_mitglied_button, left_container], style=Pack(direction=COLUMN, flex=1))
+        left_box = toga.Box(children=[self.neues_mitglied_button, self.left_container],
+                            style=Pack(direction=COLUMN, flex=1))
 
         split_container = toga.SplitContainer()
         split_container.content = [(left_box, 1), (self.right_container, 2)]
@@ -93,19 +105,19 @@ class NetworkManagerApp(toga.App):
 
     def create_right_content(self, is_new_user=False):
         if is_new_user:
-            action_button = toga.Button('Speichern', on_press=self.save_data, style=Pack(flex=1, padding=10))
-            user_action_button_box = toga.Box(children=[action_button], style=Pack(direction=ROW, padding=10))
+            self.action_button = toga.Button('Speichern', on_press=self.save_data, style=Pack(flex=1, padding=10))
+            user_action_button_box = toga.Box(children=[self.action_button], style=Pack(direction=ROW, padding=10))
         else:
-            action_button = toga.Button('Aktualisieren', on_press=self.benutzer_aktualisieren,
-                                        style=Pack(flex=1, padding=10))
-            delete_user_button = toga.Button('Löschen', on_press=self.delete_user, style=Pack(flex=1, padding=10))
-            user_action_button_box = toga.Box(children=[action_button, delete_user_button],
-                                              style=Pack(direction=ROW, padding=10))
+            self.action_button = toga.Button('Aktualisieren', on_press=self.benutzer_aktualisieren,
+                                             style=Pack(flex=1, padding=10))
+            self.delete_user_button = toga.Button('Löschen', on_press=self.delete_user, style=Pack(flex=1, padding=10))
+            self.user_action_button_box = toga.Box(children=[self.action_button, self.delete_user_button],
+                                                   style=Pack(direction=ROW, padding=10))
 
-        vorlage_erzeugen = toga.Button('Kurzpräsentation Vorlage erzeugen', on_press=self.folie_erzeugen,
-                                       style=Pack(flex=1, padding=10))
-        vortrag_action_button_box = toga.Box(children=[vorlage_erzeugen],
-                                             style=Pack(direction=ROW, padding=10))
+        self.vorlage_erzeugen_button = toga.Button('Kurzpräsentation Vorlage erzeugen', on_press=self.folie_erzeugen,
+                                                   style=Pack(flex=1, padding=10))
+        self.vortrag_action_button_box = toga.Box(children=[self.vorlage_erzeugen_button],
+                                                  style=Pack(direction=ROW, padding=10))
 
         label_width = 150
         box = toga.Box(
@@ -134,7 +146,7 @@ class NetworkManagerApp(toga.App):
                 toga.Box(children=[toga.Label('Mitgliedsstatus:', style=Pack(width=label_width, padding=(5, 5))),
                                    self.mitgliedsstatus_input], style=Pack(direction=ROW, padding=5)),
 
-                user_action_button_box,
+                self.user_action_button_box,
 
                 toga.Box(children=[
                     toga.Label('Kurzpräsentation Vorlage erzeugen:', style=Pack(width=200, padding=(5, 5)))],
@@ -143,7 +155,7 @@ class NetworkManagerApp(toga.App):
                                    self.vortrag_zeit_input], style=Pack(direction=ROW, padding=5)),
                 toga.Box(children=[toga.Label('Nächster Vortrag:', style=Pack(width=label_width, padding=(5, 5))),
                                    self.naechster_vortrag_input], style=Pack(direction=ROW, padding=5)),
-                vortrag_action_button_box
+                self.vortrag_action_button_box
             ],
             style=Pack(direction=COLUMN, padding=10)
         )
