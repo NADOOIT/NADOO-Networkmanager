@@ -57,7 +57,8 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
     benutzerdaten_validieren(benutzerdaten)
 
     if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
-        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'], benutzerdaten['nachname'])
+        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'],
+                                                       benutzerdaten['nachname'])
 
         # Find the user and update the information
         for benutzer in data['benutzer']:
@@ -78,7 +79,7 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
     benutzer_speichern(data)
 
 
-def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> str:
+def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None):
     """
     Creates a new presentation from the template.
     :return: The path to the newly created presentation.
@@ -88,7 +89,6 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
     folienvorlage = folienvorlage
     folientitel = folienvorlage['folientitel']
     pptx_src_path = folienvorlage['folien_path']
-    pptx_dest_path = folienvorlage['folien_path']
 
     presentation = Presentation(pptx_src_path)
 
@@ -104,7 +104,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
             folie.shapes._spTree.remove(shape._element)
             # Add the new picture
             folie.shapes.add_picture(user_info.get('foto', "resources/images/benutzer/default.png"), x, y, cx, cy)
-            print("Picture shape updated successfully")
+            # print("Picture shape updated successfully")
 
         elif shape.has_text_frame:
             text_frame = shape.text_frame
@@ -120,7 +120,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
                 font.size = Pt(27)
                 font.bold = False
                 font.italic = None  # cause value to be inherited from theme
-                print(f"Kurzpräsentation in {folientitel} geändert.")
+                # print(f"Kurzpräsentation in {folientitel} geändert.")
             elif shape.text == "Firmenname":
                 text_frame.clear()
                 p = text_frame.paragraphs[0]
@@ -131,7 +131,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
                 font.size = Pt(22)
                 font.bold = False
                 font.italic = None
-                print(f"Firmenname in {user_info['firmenname']} geändert.")
+                # print(f"Firmenname in {user_info['firmenname']} geändert.")
             elif shape.text == "Unternehmensbranche":
                 text_frame.clear()
                 p = text_frame.paragraphs[0]
@@ -143,7 +143,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
                 font.size = Pt(20)
                 font.bold = False
                 font.italic = None
-                print(f"Unternehmensbranche in {user_info['unternehmensbranche']} geändert.")
+                # print(f"Unternehmensbranche in {user_info['unternehmensbranche']} geändert.")
             elif shape.text == "Kontaktdaten":
                 text_frame.clear()
                 p = text_frame.paragraphs[0]
@@ -188,13 +188,21 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None) -> s
                 font.bold = True
                 font.italic = None
 
-    # Speichere die Änderungen in einer neuen Datei.
-    ordner, dateiname = os.path.split(pptx_dest_path)
-    name, ext = os.path.splitext(dateiname)
-    neuer_dateiname = f"{user_info['vorname']}_{folienvorlage['folientitel']}{ext}"
-    neuer_ordner = os.path.join(ordner, "kurzpraesentation_folien")
-    ensure_directory_exists(neuer_ordner)
-    dateizielpfad = os.path.join(neuer_ordner, neuer_dateiname)
+    dateizielpfad = kurzpraesentation_zielpfad_erstellen(user_info, folienvorlage)
     presentation.save(dateizielpfad)
 
-    return dateizielpfad
+
+def kurzpraesentation_zielpfad_erstellen(user_info, folienvorlage) -> str:
+    """
+    Erstellt einen Ordner für die Kurzpräsentationen.
+    :return: Pfad zum Ordner
+    """
+    # Speichere die Änderungen in einer neuen Datei.
+    pptx_src_path = folienvorlage['folien_path']
+    ordner, dateiname = os.path.split(pptx_src_path)
+    name, ext = os.path.splitext(dateiname)
+    neuer_dateiname = f"{user_info['vorname']}_{folienvorlage['folientitel']}{ext}"
+    neuer_ordner = os.path.join(ordner, "kurzpraesentation")
+    ensure_directory_exists(neuer_ordner)
+    dateizielpfad = os.path.join(neuer_ordner, neuer_dateiname)
+    return dateizielpfad.replace('\\', '/')

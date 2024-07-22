@@ -1,25 +1,5 @@
 {
     "kurzpraesentation_folien": [
-        {
-            "user_id": 1,
-            "folientitel": "Kurzpräsentation",
-            "vortragszeit": "20 Sek",
-            "naechster_vortrag": "Max Mustermann",
-            "folien_path": "resources/vorlage/kurzpraesentation_folien/Hani_Kurzpräsentation.pptx"
-        },
-        {
-            "user_id": 2,
-            "folientitel": "Kurzpräsentation",
-            "vortragszeit": "20 Sek",
-            "naechster_vortrag": "Max Mustermann",
-            "folien_path": "resources/vorlage/kurzpraesentation_folien/Christoph_Kurzpräsentation.pptx"
-        },
-        {
-            "user_id": 1,
-            "folientitel": "Kurzpräsentation",
-            "vortragszeit": "20 Sek",
-            "naechster_vortrag": "Max Mustermann",
-            "folien_path": "resources/vorlage/kurzpraesentation_folien/Hani_Kurzpräsentation.pptx"
-        }
+
     ]
 }
