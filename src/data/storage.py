@@ -16,7 +16,7 @@ def benutzer_speichern(data):
         json.dump(data, json_file, indent=4, ensure_ascii=False)
 
 
-def get_users():
+def get_benutzer():
     return [user for user in lesen_user_data()['benutzer']]
 
 
@@ -46,7 +46,7 @@ def kurzpraesentation_folien_speichern(data):
         json.dump(data, json_file, indent=4, ensure_ascii=False)
 
 
-def kurzpraesentation_folien():
+def get_kurzpraesentation_folien():
     return [user for user in lesen_kurzpraesentation_folien()['kurzpraesentation_folien']]
 
 
