@@ -14,16 +14,16 @@
             "id": 1
         },
         {
-            "vorname": "dsfsd",
-            "nachname": "dsfs",
-            "firmenname": "sdfs",
+            "vorname": "hani",
+            "nachname": "bashir",
+            "firmenname": "habeero",
             "unternehmensbranche": "sdf",
             "telefonnummer": "sdfsd",
             "email": "sdfsd@sdf.c",
             "webseite": "dfgbd",
             "chapter": "Moin Oldenburg (online)",
             "mitgliedsstatus": "aktiv",
-            "foto": "resources/images/benutzer/user.png",
+            "foto": "resources/images/benutzer/hani_bashir_foto.png",
             "id": 2
         }
     ]
