@@ -25,8 +25,10 @@ def benutzerfoto_speichern(photo_path, vorname, nachname):
 
 def benutzerfoto_loeschen(user):
     user_photo_path = user.get('foto')
-    if user_photo_path and os.path.exists(user_photo_path):
-        os.remove(user_photo_path)
+    print(user_photo_path == 'resources/images/benutzer/user.png')
+    if user_photo_path != 'Kein Foto ausgewählt' and user_photo_path != 'resources/images/benutzer/user.png':
+        if user_photo_path and os.path.exists(user_photo_path):
+            os.remove(user_photo_path)
 
 
 def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
@@ -65,7 +67,6 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
     elif benutzerdaten['foto'] == 'Kein Foto ausgewählt' or benutzerdaten['foto'] == '' or not benutzerdaten[
         'foto']:
         benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
-
 
     # Find the user and update the information
     for benutzer in data['benutzer']:

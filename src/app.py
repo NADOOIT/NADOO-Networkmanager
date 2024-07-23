@@ -116,7 +116,7 @@ class NetworkManagerApp(toga.App):
             )
             if confirmed:
                 try:
-                    benutzerfoto_loeschen(self.selected_user)
+                    benutzerfoto_loeschen(self.selected_user)  # delete user photo
                     self.data['benutzer'] = [user for user in self.data['benutzer'] if
                                              user['id'] != self.selected_user['id']]
                     for i, user in enumerate(self.data['benutzer']):
