@@ -16,7 +16,7 @@ def benutzer_speichern(data):
         json.dump(data, json_file, indent=4, ensure_ascii=False)
 
 
-def get_benutzer():
+def get_benutzer_liste():
     return [user for user in lesen_user_data()['benutzer']]
 
 

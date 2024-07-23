@@ -1,5 +1,11 @@
 {
     "kurzpraesentation_folien": [
-
+        {
+            "user_id": 1,
+            "folientitel": "Kurzpräsentation",
+            "vortragszeit": "20 Sek",
+            "naechster_vortrag": "",
+            "folien_path": "resources/vorlage/kurzpraesentation/omar_Kurzpräsentation.pptx"
+        }
     ]
 }

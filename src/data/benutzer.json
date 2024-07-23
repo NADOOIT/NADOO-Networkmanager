@@ -1,3 +1,17 @@
 {
-    "benutzer": []
+    "benutzer": [
+        {
+            "vorname": "Christoph",
+            "nachname": "Backhaus",
+            "firmenname": "Nadoo IT",
+            "unternehmensbranche": "App Entwicklung",
+            "telefonnummer": "04569875632",
+            "email": "christph@nadooit.de",
+            "webseite": "www.nadooit.de",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "aktiv",
+            "foto": "resources/images/benutzer/Christoph_Backhaus_foto.png",
+            "id": 1
+        }
+    ]
 }
