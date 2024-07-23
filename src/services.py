@@ -6,7 +6,7 @@ from pptx.util import Pt
 from src.utils import ensure_directory_exists
 from src.models.user import User
 from src.validators import ValidationError, benutzerdaten_validieren
-from src.data.storage import benutzer_speichern
+from src.data.storage import benutzer_speichern, get_benutzer_liste
 
 
 def benutzerfoto_speichern(photo_path, vorname, nachname):
@@ -29,15 +29,18 @@ def benutzerfoto_loeschen(user):
         os.remove(user_photo_path)
 
 
-def benutzerdaten_validieren_und_speichern(user_data, data):
+def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
     # Validate the data
-    benutzerdaten_validieren(user_data)
+    benutzerdaten_validieren(benutzerdaten)
 
-    if user_data['foto'] != 'Kein Foto ausgewählt':
-        user_data['foto'] = benutzerfoto_speichern(user_data['foto'], user_data['vorname'], user_data['nachname'])
+    if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
+        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'],
+                                                       benutzerdaten['nachname'])
+    else:
+        benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
 
     # Data is valid, insert the data into the JSON file
-    user = User(**user_data)
+    user = User(**benutzerdaten)
 
     # Find the highest current id
     if data['benutzer']:
@@ -59,24 +62,37 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
     if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
         benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'],
                                                        benutzerdaten['nachname'])
+    elif benutzerdaten['foto'] == 'Kein Foto ausgewählt' or benutzerdaten['foto'] == '' or not benutzerdaten[
+        'foto']:
+        benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
 
-        # Find the user and update the information
-        for benutzer in data['benutzer']:
-            if benutzer['id'] == benutzer_id:
-                benutzer['vorname'] = benutzerdaten['vorname']
-                benutzer['nachname'] = benutzerdaten['nachname']
-                benutzer['firmenname'] = benutzerdaten['firmenname']
-                benutzer['unternehmensbranche'] = benutzerdaten['unternehmensbranche']
-                benutzer['telefonnummer'] = benutzerdaten['telefonnummer']
-                benutzer['email'] = benutzerdaten['email']
-                benutzer['webseite'] = benutzerdaten['webseite']
-                benutzer['chapter'] = benutzerdaten['chapter']
-                benutzer['mitgliedsstatus'] = benutzerdaten['mitgliedsstatus']
-                if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
-                    benutzer['foto'] = benutzerdaten['foto']
-                break
+
+    # Find the user and update the information
+    for benutzer in data['benutzer']:
+        if benutzer['id'] == benutzer_id:
+            benutzer['vorname'] = benutzerdaten['vorname']
+            benutzer['nachname'] = benutzerdaten['nachname']
+            benutzer['firmenname'] = benutzerdaten['firmenname']
+            benutzer['unternehmensbranche'] = benutzerdaten['unternehmensbranche']
+            benutzer['telefonnummer'] = benutzerdaten['telefonnummer']
+            benutzer['email'] = benutzerdaten['email']
+            benutzer['webseite'] = benutzerdaten['webseite']
+            benutzer['chapter'] = benutzerdaten['chapter']
+            benutzer['mitgliedsstatus'] = benutzerdaten['mitgliedsstatus']
+            if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
+                benutzer['foto'] = benutzerdaten['foto']
+            break
 
     benutzer_speichern(data)
+
+
+def benutzerdaten_geaendert(user_form, selected_user) -> (bool, dict):
+    benutzerdaten_aus_feldern = user_form.benutzerdaten_aus_feldern()
+    benutzerdaten_aus_feldern['id'] = selected_user['id']
+
+    benutzer_info = [user for user in get_benutzer_liste() if user['id'] == selected_user['id']][0]
+    # True if the data is different
+    return benutzer_info != benutzerdaten_aus_feldern, benutzerdaten_aus_feldern
 
 
 def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None):
@@ -103,7 +119,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None):
             # Remove the old picture
             folie.shapes._spTree.remove(shape._element)
             # Add the new picture
-            folie.shapes.add_picture(user_info.get('foto', "resources/images/benutzer/default.png"), x, y, cx, cy)
+            folie.shapes.add_picture(user_info.get('foto', "resources/images/benutzer/user.png"), x, y, cx, cy)
             # print("Picture shape updated successfully")
 
         elif shape.has_text_frame:

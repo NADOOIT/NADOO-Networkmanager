@@ -161,7 +161,7 @@ class UserForm:
             "webseite": self.webseite_input.value,
             "chapter": self.chapter_input.value,
             "mitgliedsstatus": self.mitgliedsstatus_input.value,
-            "foto": self.photo_path.text
+            "foto": self.photo_path.text,
         }
 
     async def benutzer_foto_auswaehlen(self, widget):

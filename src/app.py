@@ -4,13 +4,15 @@ import toga
 from toga.style import Pack
 from toga.style.pack import COLUMN
 
-from src.config import KURZPRAESENTATION_FOLIEN_DATEN
-from src.data.storage import lesen_user_data, get_benutzer, benutzer_speichern, lesen_kurzpraesentation_folien, \
+from src.data.storage import lesen_user_data, get_benutzer_liste, benutzer_speichern, lesen_kurzpraesentation_folien, \
     get_folien_vorlagen, kurzpraesentation_folien_speichern, get_kurzpraesentation_folien
 from src.services import (
     benutzerfoto_loeschen,
     benutzerdaten_validieren_und_speichern,
-    benutzerdaten_validieren_und_aktualisieren, kurzpraesentation_folie_erzeugen, kurzpraesentation_zielpfad_erstellen
+    benutzerdaten_validieren_und_aktualisieren,
+    kurzpraesentation_folie_erzeugen,
+    kurzpraesentation_zielpfad_erstellen,
+    benutzerdaten_geaendert
 
 )
 from src.validators import ValidationError
@@ -36,10 +38,10 @@ class NetworkManagerApp(toga.App):
 
     def create_main_layout(self):
         mitglied_vor_nachname = [(i + 1, f'{value["vorname"]} {value["nachname"]}') for i, value in
-                                 enumerate(get_benutzer())]
+                                 enumerate(get_benutzer_liste())]
 
-        left_container = toga.Table(headings=["Nr.", "Mitglieder"], data=mitglied_vor_nachname,
-                                    on_select=self.on_mitglied_ausgewählt, style=Pack(flex=1))
+        left_container = toga.Table(headings=["ID", "Mitglieder"], data=mitglied_vor_nachname,
+                                    on_select=self.on_mitglied_ausgewaehlt, style=Pack(flex=1))
 
         self.right_container = toga.ScrollContainer(horizontal=False)
         self.right_container.content = toga.Box(style=Pack(direction=COLUMN))
@@ -55,15 +57,15 @@ class NetworkManagerApp(toga.App):
 
         self.main_window.content = split_container
 
-    def on_mitglied_ausgewählt(self, widget):
+    def on_mitglied_ausgewaehlt(self, widget):
         self.is_new_user = False
         selected_row = widget.selection
         if selected_row is not None:
-            users = get_benutzer()
+            users = get_benutzer_liste()
             try:
-                selected_vorname, selected_nachname = selected_row.mitglieder.split()
+                selected_user_id = selected_row.id
                 for user in users:
-                    if user['vorname'] == selected_vorname and user['nachname'] == selected_nachname:
+                    if user['id'] == selected_user_id:
                         self.is_new_user = False
                         self.selected_user = user
                         self.aktualisiere_right_container(user, is_new_user=self.is_new_user)
@@ -125,25 +127,23 @@ class NetworkManagerApp(toga.App):
                 except Exception as e:
                     await self.main_window.error_dialog('Fehler', str(e))
 
-    import os
-
     async def kurzpraesentation_folie_erzeugen(self, widget):
-        benutzerdaten_aus_feldern = self.user_form.benutzerdaten_aus_feldern()
-        benutzerdaten_aus_feldern['id'] = self.selected_user['id']
+        geaendert, benutzerdaten_aus_feldern = benutzerdaten_geaendert(self.user_form, self.selected_user)
 
-        user_info = [user for user in get_benutzer() if user['id'] == self.selected_user['id']][0]
-
-        if benutzerdaten_aus_feldern != user_info:
+        if geaendert:
             confirmed = await self.main_window.confirm_dialog(
                 'Benutzerdaten geändert',
                 'Die Benutzerdaten wurden geändert. Möchten Sie die Änderung speichern before eine neue Folie erstellen?'
             )
+
             if confirmed:
                 self.selected_user['id'] = self.selected_user['id']
                 for key, value in benutzerdaten_aus_feldern.items():
                     self.selected_user[key] = value
                 # save the changes to the user before creating the slide
                 self.benutzer_aktualisieren(self.selected_user)
+            else:
+                return  # don't proceed with creating the slide
 
         folienvorlage = get_folien_vorlagen()
         folienvorlage = [vorlage for vorlage in folienvorlage if vorlage['folientitel'] == 'Kurzpräsentation'][0]
