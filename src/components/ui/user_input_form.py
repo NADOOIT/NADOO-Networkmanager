@@ -2,6 +2,8 @@ import toga
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW
 
+from src.data.storage import get_benutzer_kurzpraesentation_folie
+
 
 class UserForm:
     def __init__(self,
@@ -10,11 +12,23 @@ class UserForm:
                  benutzer_loeschen_callback,
                  kurzpraesentation_folie_erzeugen_callback,
                  is_new_user,
-                 user_data=None
+                 user_data=None,
+                 user_id=None,
                  ):
 
         self.is_new_user = is_new_user
         self.user_data = user_data or {}
+        self.benutzer_folie = {}
+
+        if not self.is_new_user:
+            self.user_data['id'] = user_id
+
+        if self.user_data:
+            try:
+                # check if the user already has a slide
+                self.benutzer_folie = get_benutzer_kurzpraesentation_folie(user_id=self.user_data['id'])
+            except IndexError:
+                self.benutzer_folie = {}
 
         # function from src\app.py
         self.benutzer_speichern = benutzer_speichern_callback
@@ -56,11 +70,11 @@ class UserForm:
 
         # Additional input fields for presentation
         self.vortrag_zeit_input = toga.TextInput(placeholder='Präsentationszeit eingeben',
-                                                 value=self.user_data.get('vortrag_zeit', '20 Sek') if self.user_data else "20 Sek",
+                                                 value=self.benutzer_folie.get('vortragszeit', '') if self.user_data else "20 Sek",
                                                  style=Pack(flex=1, padding=(0, 5)))
         self.naechster_vortrag_input = toga.TextInput(placeholder='Nächster Vortrag: Vor- und Nachname',
                                                       style=Pack(flex=1, padding=(0, 5)),
-                                                      value=self.user_data.get('naechster_vortrag', '') if self.user_data else '')
+                                                      value=self.benutzer_folie.get('naechster_vortrag', '') if self.user_data else '')
 
     def knoepfe_erstellen(self):
         if self.is_new_user:
@@ -122,7 +136,7 @@ class UserForm:
             style=Pack(direction=COLUMN, padding=10)
         )
 
-        # Only add the presentation fields if it's not a new user adding case
+        # Only add the presentation fields if it's NOT a new user adding case
         if not self.is_new_user:
             form_box.add(
                 toga.Box(

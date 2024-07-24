@@ -1,0 +1,17 @@
+{
+    "benutzer": [
+        {
+            "vorname": "hi",
+            "nachname": "hi",
+            "firmenname": "kjh",
+            "unternehmensbranche": "jhn",
+            "telefonnummer": "kjhkjhn",
+            "email": "kjk@jjjf.co",
+            "webseite": "kjbnkj",
+            "chapter": "Moin Oldenburg (online)",
+            "mitgliedsstatus": "aktiv",
+            "foto": "resources/images/benutzer/hi_2024-07-24-14-38-14_foto.png",
+            "id": 1
+        }
+    ]
+}
