@@ -1,7 +1,7 @@
 from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
     loeschen_benutzer_kurzpraesentation_daten
-
-from . import kurzpraesentation_folie_loeschen
+from src.services.standard.folien.kurzpraesentation.kurzpraesentation_folie_loeschen import \
+    kurzpraesentation_folie_loeschen
 
 
 def benutzer_kurzpraesentation_loeschen(benutzer_id):

@@ -5,15 +5,17 @@ from toga.style.pack import COLUMN
 from src.data.storage import lesen_benutzerdaten, get_benutzer_liste, benutzer_speichern, \
     lesen_kurzpraesentation_folien_json, \
     get_folien_vorlagen, kurzpraesentation_folien_speichern, get_benutzer_kurzpraesentation_folie
-from src.services import (
-    benutzerfoto_loeschen,
+from .services import (
     benutzerdaten_validieren_und_speichern,
     benutzerdaten_validieren_und_aktualisieren,
+    benutzerfoto_loeschen,
+    benutzerdaten_geaendert,
+    benutzer_kurzpraesentation_loeschen,
     kurzpraesentation_folie_erzeugen,
     kurzpraesentation_zielpfad_erstellen,
-    benutzerdaten_geaendert, kurzpraesentation_folie_loeschen, benutzer_kurzpraesentation_loeschen
-
+    kurzpraesentation_folie_loeschen
 )
+
 from src.validators import ValidationError
 from src.components.ui.user_input_form import UserForm
 

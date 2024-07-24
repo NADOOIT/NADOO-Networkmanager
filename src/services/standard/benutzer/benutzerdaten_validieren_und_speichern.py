@@ -1,9 +1,7 @@
 from src.models.user import User
-from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
-    loeschen_benutzer_kurzpraesentation_daten
+from src.data.storage import benutzer_speichern
+from src.services.standard.benutzer.benutzerfoto_speichern import benutzerfoto_speichern
 from src.validators import benutzerdaten_validieren
-
-from . import benutzerfoto_speichern
 
 
 def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
