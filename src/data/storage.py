@@ -71,4 +71,17 @@ def loeschen_benutzer_kurzpraesentation_daten(user_id):
     kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION] = [
         benutzer_folie for benutzer_folie in kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION] if
         benutzer_folie['user_id'] != user_id]
+
+    for i, kurz in enumerate(kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION]):
+        kurz['user_id'] = i + 1
     speichern(data=kurzpraesentation_folien, model=BENUTZER_KURZPRAESENTATION)
+
+
+
+
+
+
+
+
+
+
