@@ -1,5 +1,6 @@
+from src.constants import BENUTZER
 from src.models.user import User
-from src.data.storage import benutzer_speichern
+from src.data.storage import speichern
 from src.services.standard.benutzer.benutzerfoto_speichern import benutzerfoto_speichern
 from src.validators import benutzerdaten_validieren
 
@@ -27,4 +28,4 @@ def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
     new_user_data['id'] = max_id + 1
 
     data['benutzer'].append(new_user_data)
-    benutzer_speichern(data)
+    speichern(data, model=BENUTZER)

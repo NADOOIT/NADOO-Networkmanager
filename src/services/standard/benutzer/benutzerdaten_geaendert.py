@@ -1,5 +1,5 @@
 from src.models.user import User
-from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
+from src.data.storage import speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
     loeschen_benutzer_kurzpraesentation_daten
 
 

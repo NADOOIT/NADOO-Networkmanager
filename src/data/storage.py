@@ -1,74 +1,74 @@
-import json
-import os
-from src.config import BENUTZER_DATEN, FOLIEN_DATEN, KURZPRAESENTATION_FOLIEN_DATEN
+from src.config import BENUTZER_DATEN_FILE, FOLIEN_DATEN_FILE, KURZPRAESENTATION_FOLIEN_DATEN_FILE
+from src.constants import BENUTZER, BENUTZER_KURZPRAESENTATION, FOLIEN_VORLAGEN
+from src.utils import file_exists, write_to_file, read_file
 
 
-def lesen_benutzerdaten(db_type='json'):
+def get_data(model: str, db_type='json'):
     if db_type == 'json':
-        if os.path.exists(BENUTZER_DATEN):
-            with open(BENUTZER_DATEN, 'r', encoding='utf-8') as json_file:
-                return json.load(json_file)
-        else:
-            return {"benutzer": []}
-    elif db_type == 'sqlite':
-        # user_data = lesen_benutzerdaten('json')
-        # set_user_data()
-        # return user_data
-        raise NotImplementedError('DB type "sqlite" not implemented.')
-
+        match model:
+            case "benutzer":
+                if file_exists(BENUTZER_DATEN_FILE):
+                    return read_file(BENUTZER_DATEN_FILE)
+            case "benutzer_kurzpraesentation":
+                if file_exists(KURZPRAESENTATION_FOLIEN_DATEN_FILE):
+                    return read_file(KURZPRAESENTATION_FOLIEN_DATEN_FILE)
+            case "folienvorlagen":
+                if file_exists(FOLIEN_DATEN_FILE):
+                    return read_file(FOLIEN_DATEN_FILE)
     else:
         raise NotImplementedError('DB type not implemented.')
 
 
-def benutzer_speichern(data):
-    with open(BENUTZER_DATEN, 'w', encoding='utf-8') as json_file:
-        json.dump(data, json_file, indent=4, ensure_ascii=False)
+def speichern(data, model: str):
+    match model:
+        case "benutzer":
+            write_to_file(BENUTZER_DATEN_FILE, data)
+        case "benutzer_kurzpraesentation":
+            write_to_file(KURZPRAESENTATION_FOLIEN_DATEN_FILE, data)
+        case "folienvorlagen":
+            write_to_file(FOLIEN_DATEN_FILE, data)
+        case _:
+            raise NotImplementedError('Model not implemented.')
+
+
+def loeschen(model: str, data=None, user_id: int = None):
+    match model:
+        case "benutzer":
+            # create a new list without the user
+            data['benutzer'] = [user for user in data['benutzer'] if user['id'] != user_id]
+            for i, user in enumerate(data['benutzer']):
+                user['id'] = i + 1
+            speichern(data, model="benutzer")  # save the new user list to the JSON file
+        case "benutzer_kurzpraesentation":
+            loeschen_benutzer_kurzpraesentation_daten(user_id)
+        case "folienvorlagen":
+            # loeschen_folien_vorlagen(data)
+            pass
+        case _:
+            raise NotImplementedError('Model not implemented.')
 
 
 def get_benutzer_liste():
-    return [user for user in lesen_benutzerdaten()['benutzer']]
+    return [user for user in get_data(model=BENUTZER)[BENUTZER]]
 
 
-def lesen_folien_vorlagen():
-    if os.path.exists(FOLIEN_DATEN):
-        with open(FOLIEN_DATEN, 'r', encoding='utf-8') as json_file:
-            return json.load(json_file)
-    else:
-        return {"folienvorlagen": []}
-
-
-def get_folien_vorlagen():
-    return [folienvorlage for folienvorlage in lesen_folien_vorlagen()['folienvorlagen']]
-
-
-# Kurzpräsentation folien
-def lesen_kurzpraesentation_folien_json():
-    if os.path.exists(KURZPRAESENTATION_FOLIEN_DATEN):
-        with open(KURZPRAESENTATION_FOLIEN_DATEN, 'r', encoding='utf-8') as json_file:
-            return json.load(json_file)
-    else:
-        return {"kurzpraesentation_folien": []}
-
-
-def kurzpraesentation_folien_speichern(data):
-    with open(KURZPRAESENTATION_FOLIEN_DATEN, 'w', encoding='utf-8') as json_file:
-        json.dump(data, json_file, indent=4, ensure_ascii=False)
-
-
-def get_kurzpraesentation_folien():
-    return [user for user in lesen_kurzpraesentation_folien_json()['kurzpraesentation_folien']]
+def get_folien_vorlagen_liste():
+    return [folienvorlage for folienvorlage in get_data(model=FOLIEN_VORLAGEN)[FOLIEN_VORLAGEN]]
 
 
 def get_benutzer_kurzpraesentation_folie(user_id):
-    return [benutzer_folie for benutzer_folie in lesen_kurzpraesentation_folien_json()['kurzpraesentation_folien'] if
-            benutzer_folie['user_id'] == user_id][0] or None
+    benutzer_folie = [benutzer_folie for benutzer_folie in
+                      get_data(model=BENUTZER_KURZPRAESENTATION)[BENUTZER_KURZPRAESENTATION] if
+                      benutzer_folie['user_id'] == user_id]
+    if benutzer_folie and len(benutzer_folie) > 0:
+        return benutzer_folie[0]
+    return None
 
 
 def loeschen_benutzer_kurzpraesentation_daten(user_id):
-    kurzpraesentation_folien = lesen_kurzpraesentation_folien_json()
-    kurzpraesentation_folien['kurzpraesentation_folien'] = [
-        benutzer_folie for benutzer_folie in kurzpraesentation_folien['kurzpraesentation_folien'] if
+    kurzpraesentation_folien = get_data(model=BENUTZER_KURZPRAESENTATION)
+    # print(kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION])
+    kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION] = [
+        benutzer_folie for benutzer_folie in kurzpraesentation_folien[BENUTZER_KURZPRAESENTATION] if
         benutzer_folie['user_id'] != user_id]
-    if kurzpraesentation_folien['kurzpraesentation_folien']:
-        kurzpraesentation_folien_speichern(kurzpraesentation_folien)
-
+    speichern(data=kurzpraesentation_folien, model=BENUTZER_KURZPRAESENTATION)

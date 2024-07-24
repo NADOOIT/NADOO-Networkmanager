@@ -3,5 +3,5 @@ from src.services import (
     benutzerdaten_validieren_und_aktualisieren,
     benutzerfoto_loeschen,
     benutzerdaten_geaendert,
-    benutzer_kurzpraesentation_loeschen
+    benutzer_kurzpraesentation_daten_loeschen
 )
