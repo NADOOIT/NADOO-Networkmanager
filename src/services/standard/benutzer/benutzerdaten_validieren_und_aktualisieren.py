@@ -1,17 +1,19 @@
-from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
-    loeschen_benutzer_kurzpraesentation_daten
+from src.data.storage import benutzer_speichern
+from src.services.standard.benutzer.benutzerfoto_loeschen import benutzerfoto_loeschen
+from src.services.standard.benutzer.benutzerfoto_speichern import benutzerfoto_speichern
 from src.validators import benutzerdaten_validieren
 
-from . import benutzerfoto_loeschen
-from . import benutzerfoto_speichern
 
 def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id):
     benutzerdaten_validieren(benutzerdaten)
 
     if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
         benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten)
-    elif benutzerdaten['foto'] == 'Kein Foto ausgewählt' or benutzerdaten['foto'] == '' or not benutzerdaten[
-        'foto']:
+    elif (
+            benutzerdaten['foto'] == 'Kein Foto ausgewählt'
+            or benutzerdaten['foto'] == ''
+            or not benutzerdaten['foto']
+    ):
         benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
 
     # Find the user and update the information

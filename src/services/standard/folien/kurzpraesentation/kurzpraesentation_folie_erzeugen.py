@@ -1,16 +1,9 @@
 from pptx.util import Pt
 from pptx.dml.color import RGBColor
-import time
-from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
-    loeschen_benutzer_kurzpraesentation_daten
-from src.utils import ensure_directory_exists
-from src.models.user import User
-import os
-import shutil
-from src.validators import benutzerdaten_validieren
 from pptx import Presentation
 
-from . import kurzpraesentation_zielpfad_erstellen
+from src.services.standard.folien.kurzpraesentation import kurzpraesentation_zielpfad_erstellen
+
 
 def kurzpraesentation_folie_erzeugen(folienvorlage, benutzer_folie, user_info: dict = None):
     """
