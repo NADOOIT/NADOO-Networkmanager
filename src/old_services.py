@@ -1,20 +1,27 @@
 import os
 import shutil
+import time
+
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Pt
 from src.utils import ensure_directory_exists
 from src.models.user import User
-from src.validators import ValidationError, benutzerdaten_validieren
-from src.data.storage import benutzer_speichern, get_benutzer_liste
+from src.validators import benutzerdaten_validieren
+from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
+    loeschen_benutzer_kurzpraesentation_daten
 
 
-def benutzerfoto_speichern(photo_path, vorname, nachname):
+def benutzerfoto_speichern(benutzerdaten):
+    photo_path = benutzerdaten['foto']
     if photo_path and photo_path != 'Kein Foto ausgewählt':
         photo_dir = 'resources/images/benutzer'
-        os.makedirs(photo_dir, exist_ok=True)
+        ensure_directory_exists(photo_dir)  # Create directory if not exists
+
+        date_string = time.strftime("%Y-%m-%d-%H-%M-%S")
+
         _, ext = os.path.splitext(photo_path)  # Extract file extension
-        photo_filename = f'{vorname}_{nachname}_foto{ext}'
+        photo_filename = benutzerdaten['vorname'] + '_' + date_string + '_foto' + ext
         photo_destination = os.path.join(photo_dir, photo_filename)
         photo_destination = photo_destination.replace('\\', '/')
         if os.path.abspath(photo_path) != os.path.abspath(photo_destination):
@@ -23,12 +30,26 @@ def benutzerfoto_speichern(photo_path, vorname, nachname):
     return photo_path
 
 
-def benutzerfoto_loeschen(user):
-    user_photo_path = user.get('foto')
-    print(user_photo_path == 'resources/images/benutzer/user.png')
-    if user_photo_path != 'Kein Foto ausgewählt' and user_photo_path != 'resources/images/benutzer/user.png':
-        if user_photo_path and os.path.exists(user_photo_path):
-            os.remove(user_photo_path)
+def benutzerfoto_loeschen(photo_path):
+    # print(photo_path == 'resources/images/benutzer/user.png')
+    if photo_path != 'Kein Foto ausgewählt' and photo_path != 'resources/images/benutzer/user.png':
+        if photo_path and os.path.exists(photo_path):
+            os.remove(photo_path)
+
+
+def kurzpraesentation_folie_loeschen(folien_path):
+    if os.path.exists(folien_path):
+        os.remove(folien_path)
+        print(f"Folie {folien_path} gelöscht.")
+
+
+def benutzer_kurzpraesentation_loeschen(benutzer_id):
+    benutzer_folie = get_benutzer_kurzpraesentation_folie(benutzer_id)
+
+    if benutzer_folie:
+        kurzpraesentation_folie_loeschen(benutzer_folie)
+
+    loeschen_benutzer_kurzpraesentation_daten(benutzer_id)
 
 
 def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
@@ -36,8 +57,7 @@ def benutzerdaten_validieren_und_speichern(benutzerdaten, data):
     benutzerdaten_validieren(benutzerdaten)
 
     if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
-        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'],
-                                                       benutzerdaten['nachname'])
+        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten)
     else:
         benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
 
@@ -62,8 +82,7 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
     benutzerdaten_validieren(benutzerdaten)
 
     if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
-        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten['foto'], benutzerdaten['vorname'],
-                                                       benutzerdaten['nachname'])
+        benutzerdaten['foto'] = benutzerfoto_speichern(benutzerdaten)
     elif benutzerdaten['foto'] == 'Kein Foto ausgewählt' or benutzerdaten['foto'] == '' or not benutzerdaten[
         'foto']:
         benutzerdaten['foto'] = 'resources/images/benutzer/user.png'
@@ -81,6 +100,7 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
             benutzer['chapter'] = benutzerdaten['chapter']
             benutzer['mitgliedsstatus'] = benutzerdaten['mitgliedsstatus']
             if benutzerdaten['foto'] != 'Kein Foto ausgewählt':
+                benutzerfoto_loeschen(benutzer['foto'])  # Delete old photo
                 benutzer['foto'] = benutzerdaten['foto']
             break
 
@@ -96,16 +116,22 @@ def benutzerdaten_geaendert(user_form, selected_user) -> (bool, dict):
     return benutzer_info != benutzerdaten_aus_feldern, benutzerdaten_aus_feldern
 
 
-def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None):
+def kurzpraesentation_daten_geaendert(user_form, selected_user) -> (bool, dict):
+    kurzpraesentation_daten_aus_feldern = user_form.kurzpraesentation_daten_aus_feldern()
+    kurzpraesentation_daten_aus_feldern['id'] = selected_user['id']
+
+
+def kurzpraesentation_folie_erzeugen(folienvorlage, benutzer_folie, user_info: dict = None):
     """
     Creates a new presentation from the template.
     :return: The path to the newly created presentation.
     """
-    print("Folie wird erzeugt...")
 
     folienvorlage = folienvorlage
     folientitel = folienvorlage['folientitel']
     pptx_src_path = folienvorlage['folien_path']
+
+    print(benutzer_folie)
 
     presentation = Presentation(pptx_src_path)
 
@@ -198,14 +224,28 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, user_info: dict = None):
                 text_frame.clear()
                 p = text_frame.paragraphs[0]
                 run = p.add_run()
-                run.text = "Max Mustermann"
+                run.text = benutzer_folie['naechster_vortrag'] or "Kein Vortrag"
                 font = run.font
-                font.name = 'Arial'
+                font.name = 'Arial Black (Headings)'
                 font.size = Pt(24)
+                font.bold = False
+                font.italic = None
+            elif shape.text == "00 Sek":
+                text_frame.clear()
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = benutzer_folie['vortragszeit']
+                font = run.font
+                font.color.rgb = RGBColor.from_string("FFFFFF")
+                font.name = 'Arial'
+                font.size = Pt(13)
                 font.bold = True
                 font.italic = None
 
+            print(shape.text)
+
     dateizielpfad = kurzpraesentation_zielpfad_erstellen(user_info, folienvorlage)
+    # print(f"Kurzpräsentation gespeichert in {dateizielpfad}")
     presentation.save(dateizielpfad)
 
 
@@ -218,8 +258,8 @@ def kurzpraesentation_zielpfad_erstellen(user_info, folienvorlage) -> str:
     pptx_src_path = folienvorlage['folien_path']
     ordner, dateiname = os.path.split(pptx_src_path)
     name, ext = os.path.splitext(dateiname)
-    neuer_dateiname = f"{user_info['vorname']}_{folienvorlage['folientitel']}{ext}"
-    neuer_ordner = os.path.join(ordner, "kurzpraesentation")
+    neuer_dateiname = f"{user_info['vorname']}_kurzpraesentation_user_id_{user_info['id']}{ext}"
+    neuer_ordner = os.path.join(ordner, "kurzpraesentationen")
     ensure_directory_exists(neuer_ordner)
     dateizielpfad = os.path.join(neuer_ordner, neuer_dateiname)
     return dateizielpfad.replace('\\', '/')
