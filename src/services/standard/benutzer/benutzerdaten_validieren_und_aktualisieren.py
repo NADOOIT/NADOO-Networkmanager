@@ -1,4 +1,5 @@
-from src.data.storage import benutzer_speichern
+from src.constants import BENUTZER
+from src.data.storage import speichern
 from src.services.standard.benutzer.benutzerfoto_loeschen import benutzerfoto_loeschen
 from src.services.standard.benutzer.benutzerfoto_speichern import benutzerfoto_speichern
 from src.validators import benutzerdaten_validieren
@@ -33,4 +34,4 @@ def benutzerdaten_validieren_und_aktualisieren(benutzerdaten, data, benutzer_id)
                 benutzer['foto'] = benutzerdaten['foto']
             break
 
-    benutzer_speichern(data)
+    speichern(data, model=BENUTZER)

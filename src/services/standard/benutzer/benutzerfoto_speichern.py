@@ -1,10 +1,7 @@
-from src.data.storage import benutzer_speichern, get_benutzer_liste, get_benutzer_kurzpraesentation_folie, \
-    loeschen_benutzer_kurzpraesentation_daten
 from src.utils import ensure_directory_exists
 import os
 import shutil
 import time
-from src.validators import benutzerdaten_validieren
 
 
 def benutzerfoto_speichern(benutzerdaten):
@@ -16,7 +13,7 @@ def benutzerfoto_speichern(benutzerdaten):
         date_string = time.strftime("%Y-%m-%d-%H-%M-%S")
 
         _, ext = os.path.splitext(photo_path)  # Extract file extension
-        photo_filename = benutzerdaten['vorname'] + '_' + date_string + '_foto' + ext
+        photo_filename = f"{benutzerdaten['vorname']}_{date_string}_foto{ext}"
         photo_destination = os.path.join(photo_dir, photo_filename)
         photo_destination = photo_destination.replace('\\', '/')
         if os.path.abspath(photo_path) != os.path.abspath(photo_destination):

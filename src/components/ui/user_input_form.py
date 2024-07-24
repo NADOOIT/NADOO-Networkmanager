@@ -70,11 +70,11 @@ class UserForm:
 
         # Additional input fields for presentation
         self.vortrag_zeit_input = toga.TextInput(placeholder='Präsentationszeit eingeben',
-                                                 value=self.benutzer_folie.get('vortragszeit', '') if self.user_data else "20 Sek",
+                                                 value=self.benutzer_folie.get('vortragszeit', '') if self.benutzer_folie else "20 Sek",
                                                  style=Pack(flex=1, padding=(0, 5)))
         self.naechster_vortrag_input = toga.TextInput(placeholder='Nächster Vortrag: Vor- und Nachname',
                                                       style=Pack(flex=1, padding=(0, 5)),
-                                                      value=self.benutzer_folie.get('naechster_vortrag', '') if self.user_data else '')
+                                                      value=self.benutzer_folie.get('naechster_vortrag', '') if self.benutzer_folie else '')
 
     def knoepfe_erstellen(self):
         if self.is_new_user:

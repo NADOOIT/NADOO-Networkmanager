@@ -2,10 +2,10 @@ from pptx.util import Pt
 from pptx.dml.color import RGBColor
 from pptx import Presentation
 
-from src.services.standard.folien.kurzpraesentation import kurzpraesentation_zielpfad_erstellen
+from .kurzpraesentation_zielpfad_erstellen import kurzpraesentation_zielpfad_erstellen
 
 
-def kurzpraesentation_folie_erzeugen(folienvorlage, benutzer_folie, user_info: dict = None):
+def kurzpraesentation_erzeugen(folienvorlage, benutzer_folie, user_info: dict = None):
     """
     Creates a new presentation from the template.
     :return: The path to the newly created presentation.
@@ -31,6 +31,7 @@ def kurzpraesentation_folie_erzeugen(folienvorlage, benutzer_folie, user_info: d
             folie.shapes._spTree.remove(shape._element)
             # Add the new picture
             folie.shapes.add_picture(user_info.get('foto', "resources/images/benutzer/user.png"), x, y, cx, cy)
+            print(user_info.get('foto'))
             # print("Picture shape updated successfully")
 
         elif shape.has_text_frame:
