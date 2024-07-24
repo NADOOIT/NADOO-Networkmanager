@@ -1,18 +1,17 @@
-import os
-
 import toga
 from toga.style import Pack
 from toga.style.pack import COLUMN
 
-from src.data.storage import lesen_user_data, get_benutzer_liste, benutzer_speichern, lesen_kurzpraesentation_folien, \
-    get_folien_vorlagen, kurzpraesentation_folien_speichern, get_kurzpraesentation_folien
+from src.data.storage import lesen_benutzerdaten, get_benutzer_liste, benutzer_speichern, \
+    lesen_kurzpraesentation_folien_json, \
+    get_folien_vorlagen, kurzpraesentation_folien_speichern, get_benutzer_kurzpraesentation_folie
 from src.services import (
     benutzerfoto_loeschen,
     benutzerdaten_validieren_und_speichern,
     benutzerdaten_validieren_und_aktualisieren,
     kurzpraesentation_folie_erzeugen,
     kurzpraesentation_zielpfad_erstellen,
-    benutzerdaten_geaendert
+    benutzerdaten_geaendert, kurzpraesentation_folie_loeschen, benutzer_kurzpraesentation_loeschen
 
 )
 from src.validators import ValidationError
@@ -22,8 +21,9 @@ from src.components.ui.user_input_form import UserForm
 class NetworkManagerApp(toga.App):
     def __init__(self, formal_name, app_id):
         super().__init__(formal_name=formal_name, app_id=app_id)
-        self.data = lesen_user_data()
-        self.kurzpraesentation_folie_data = lesen_kurzpraesentation_folien()
+        self.data = lesen_benutzerdaten()
+        self.kurzpraesentation_folie_data = lesen_kurzpraesentation_folien_json()
+        self.benutzer_folie = None
         self.is_new_user = None
         self.selected_user = None
         self.user_form = None
@@ -46,7 +46,7 @@ class NetworkManagerApp(toga.App):
         self.right_container = toga.ScrollContainer(horizontal=False)
         self.right_container.content = toga.Box(style=Pack(direction=COLUMN))
 
-        neues_mitglied_button = toga.Button('Neues Mitglied hinzufügen', on_press=self.mitglied_hinzufuegen,
+        neues_mitglied_button = toga.Button('Neues Mitglied hinzufügen', on_press=self.neues_mitglied_layout,
                                             style=Pack(flex=0, padding=10))
 
         left_box = toga.Box(children=[neues_mitglied_button, left_container],
@@ -64,27 +64,28 @@ class NetworkManagerApp(toga.App):
             users = get_benutzer_liste()
             try:
                 selected_user_id = selected_row.id
-                for user in users:
-                    if user['id'] == selected_user_id:
+                for user_data in users:
+                    if user_data['id'] == selected_user_id:
                         self.is_new_user = False
-                        self.selected_user = user
-                        self.aktualisiere_right_container(user, is_new_user=self.is_new_user)
+                        self.selected_user = user_data
+                        self.aktualisiere_right_container(user_data, is_new_user=self.is_new_user)
                         break
             except AttributeError as e:
                 print(f"AttributeError: {e}")
 
-    def mitglied_hinzufuegen(self, widget):
+    def neues_mitglied_layout(self, widget):
         self.is_new_user = True
         self.aktualisiere_right_container({}, is_new_user=self.is_new_user)
 
-    def aktualisiere_right_container(self, user, is_new_user=False):
+    def aktualisiere_right_container(self, user_data, is_new_user=False):
         self.user_form = UserForm(
             benutzer_speichern_callback=self.benutzer_speichern,
             benutzer_aktualisieren_callback=self.benutzer_aktualisieren,
             benutzer_loeschen_callback=self.benutzer_loeschen,
             kurzpraesentation_folie_erzeugen_callback=self.kurzpraesentation_folie_erzeugen,
             is_new_user=is_new_user,
-            user_data=user
+            user_data=user_data,
+            user_id=self.selected_user.get('id') if self.selected_user else None,
         )
         self.right_container.content = self.user_form.benutzer_layout_erstellen()
 
@@ -116,7 +117,12 @@ class NetworkManagerApp(toga.App):
             )
             if confirmed:
                 try:
-                    benutzerfoto_loeschen(self.selected_user)  # delete user photo
+                    benutzerfoto_loeschen(self.selected_user['foto'])  # delete user photo
+
+                    benutzer_kurzpraesentation_loeschen(
+                        self.selected_user['id']
+                    )  # delete user kurzpraesentation data
+
                     self.data['benutzer'] = [user for user in self.data['benutzer'] if
                                              user['id'] != self.selected_user['id']]
                     for i, user in enumerate(self.data['benutzer']):
@@ -128,9 +134,9 @@ class NetworkManagerApp(toga.App):
                     await self.main_window.error_dialog('Fehler', str(e))
 
     async def kurzpraesentation_folie_erzeugen(self, widget):
-        geaendert, benutzerdaten_aus_feldern = benutzerdaten_geaendert(self.user_form, self.selected_user)
+        benutzer_info_geaendert, benutzerdaten_aus_feldern = benutzerdaten_geaendert(self.user_form, self.selected_user)
 
-        if geaendert:
+        if benutzer_info_geaendert:
             confirmed = await self.main_window.confirm_dialog(
                 'Benutzerdaten geändert',
                 'Die Benutzerdaten wurden geändert. Möchten Sie die Änderung speichern before eine neue Folie erstellen?'
@@ -143,37 +149,37 @@ class NetworkManagerApp(toga.App):
                 # save the changes to the user before creating the slide
                 self.benutzer_aktualisieren(self.selected_user)
             else:
-                return  # don't proceed with creating the slide
+                return  # there are not saved data, don't proceed with creating the slide
 
+        # get the all available slide templates
         folienvorlage = get_folien_vorlagen()
+        # get the slide template for the kurzpräsentation
         folienvorlage = [vorlage for vorlage in folienvorlage if vorlage['folientitel'] == 'Kurzpräsentation'][0]
 
+        # get the path where the slide should be saved
         dateizielpfad = kurzpraesentation_zielpfad_erstellen(
             user_info=benutzerdaten_aus_feldern,
             folienvorlage=folienvorlage
         )
 
         try:
-            benutzer_alte_folie = next(
-                (user_folie for user_folie in get_kurzpraesentation_folien() if
-                 user_folie['user_id'] == self.selected_user['id']),
-                None
-            )
+            # check if the user already has a slide
+            self.benutzer_folie = get_benutzer_kurzpraesentation_folie(user_id=self.selected_user['id'])
         except IndexError:
-            benutzer_alte_folie = None
+            self.benutzer_folie = None
 
-        if benutzer_alte_folie:  # Folie existiert
+        if self.benutzer_folie:
+            # The user already has a kurzpräsentation
             for folie in self.kurzpraesentation_folie_data['kurzpraesentation_folien']:
                 if folie['user_id'] == self.selected_user['id']:
-                    if os.path.exists(folie['folien_path']):
-                        os.remove(folie['folien_path'])
-                        print(f"Folie {folie['folien_path']} gelöscht.")
+                    kurzpraesentation_folie_loeschen(folie['folien_path'])  # delete old slide
                     folie['vortragszeit'] = self.user_form.vortrag_zeit_input.value
                     folie['naechster_vortrag'] = self.user_form.naechster_vortrag_input.value or ""
-                    folie['folien_path'] = dateizielpfad
+                    folie['folien_path'] = dateizielpfad  # update the path of the slide
+                    self.benutzer_folie = folie  # update the user slide data with the new slide data
                     break
-
-        else:  # Folie existiert nicht
+        else:
+            # The user has no kurzpräsentation slide yet so get input fields values and create a new slide
             kurzpraesentation_folien_data = {
                 "user_id": self.selected_user['id'],
                 "folientitel": "Kurzpräsentation",
@@ -181,13 +187,16 @@ class NetworkManagerApp(toga.App):
                 "naechster_vortrag": self.user_form.naechster_vortrag_input.value or "",
                 "folien_path": dateizielpfad
             }
+            self.benutzer_folie = kurzpraesentation_folien_data  # get the user new slide data
+            # append the new slide to the kurzpraesentation_folien.json
             self.kurzpraesentation_folie_data['kurzpraesentation_folien'].append(kurzpraesentation_folien_data)
 
+        # create the kurzpräsentation slide and save it to the kurzpraesentationen folder
         kurzpraesentation_folie_erzeugen(
-            user_info=benutzerdaten_aus_feldern,
-            folienvorlage=folienvorlage
-
+            folienvorlage=folienvorlage,
+            benutzer_folie=self.benutzer_folie,
+            user_info=benutzerdaten_aus_feldern
         )
 
-        # Save the new presentation data
+        # write the new kurzpräsentation slide data to the json file
         kurzpraesentation_folien_speichern(self.kurzpraesentation_folie_data)
