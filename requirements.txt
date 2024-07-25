@@ -3,3 +3,6 @@ toga
 pydantic[email]
 python-pptx
 screeninfo
+# for local testing
+GitPython
+git-filter-repo
