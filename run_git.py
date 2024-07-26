@@ -186,3 +186,5 @@ if __name__ == "__main__":
     shutil.rmtree(backup_directory)
 
     print("Script execution completed.")
+
+
