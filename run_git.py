@@ -152,6 +152,7 @@ def restore_data():
                                                                                                         "vorlage",
                                                                                                         "kurzpraesentationen")
                     dest_file_path = os.path.join(dest_path, os.path.basename(media_file_path))
+                    print(f"Restoring {media_file_path_backup} to {dest_file_path}")
                     shutil.copy(media_file_path_backup, dest_file_path)
                     print(f"Successfully restored {dest_file_path}")
                 print(f"Successfully restored {os.path.basename(file)}")
@@ -171,7 +172,7 @@ if __name__ == "__main__":
     # Backup data
     backup_data()
 
-    time.sleep(10)
+    time.sleep(5)
     # Delete sensitive data
     delete_user_data()
     delete_user_presentation_data()
@@ -179,12 +180,10 @@ if __name__ == "__main__":
     # Commit and push changes
     commit_and_push_changes(args.commit_message)
 
-    time.sleep(10)
+    time.sleep(5)
     # Restore data
     restore_data()
 
     shutil.rmtree(backup_directory)
 
     print("Script execution completed.")
-
-
