@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class User:
     def __init__(self, vorname, nachname, firmenname, unternehmensbranche, telefonnummer, email, webseite, chapter,
                  mitgliedsstatus, foto=None):

@@ -184,6 +184,6 @@ if __name__ == "__main__":
     # Restore data
     restore_data()
 
-    shutil.rmtree(backup_directory)
+    # shutil.rmtree(backup_directory)
 
     print("Script execution completed.")
